@@ -1,1 +1,5 @@
 # NOT MY JAM PROJECT
+
+BACK using NODE EXPRESS
+
+npm start
