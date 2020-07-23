@@ -113,9 +113,9 @@ router.post("/checkToken", verifyToken, (req, res) => {
 				} else {
 					res.json({
 						message: "login successful",
-						authData,
+						userId: result[0].id,
+						authData: authData,
 						// return id user
-						userID:result[0].id
 					})
 				}
 
