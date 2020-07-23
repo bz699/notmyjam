@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const connection  = require('../config');
 
+const bcrypt = require('bcrypt');
+
+const connection  = require('../config');
 
 // ALL ABOUT USERS
 
@@ -42,16 +44,21 @@ router.get('/:idUser', (req, res) => {
   })
 });
 
-// ADD ONE user
+// CREATE ONE user
 router.post('/', (req, res) => {
 
-  const formData = req.body;
+  const hash = bcrypt.hashSync(req.body.password, 10);
+  
+  const formData = {
+    email: req.body.email,
+    password: hash
+  };
 
-  connection.query('INSERT INTO user SET ?', formData, (err, results) => {
+  connection.query('INSERT INTO user SET ?', [formData], (err, results) => {
     if(err) {
-      res.status(500).send(err)
+      res.status(500).send(err);
     } else {
-      res.status(200).json(results)
+      res.sendStatus(201);
     }
   })
 })
