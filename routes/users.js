@@ -87,7 +87,7 @@ router.post("/auth", (req, res) => {
 					result[0].password
 				);
 				if (!isSame) {
-					res.status(500).send(err);
+					res.status(401).send(err);
 				} else {
 					// create token
 					jwt.sign({ result }, "secretkey", (err, token) => {
@@ -99,16 +99,29 @@ router.post("/auth", (req, res) => {
 	);
 });
 
-// Protected profile Access
-router.post("/profil", verifyToken, (req, res) => {
+// Protected generic access
+router.post("/checkToken", verifyToken, (req, res) => {
+
 	jwt.verify(req.token, "secretkey", (err, authData) => {
     if(err) {
       res.status(403).send(err);
     } else {
-      res.json({
-        message: "login successful",
-        authData
-      })
+			// get user ID with email send by jwt
+			connection.query('SELECT id from user WHERE email = ?', [authData.result[0].email], (error, result) => {
+				if(error) {
+						res.status(500).send(error)
+				} else {
+					res.json({
+						message: "login successful",
+						authData,
+						// return id user
+						userID:result[0].id
+					})
+				}
+
+			}
+			
+			)
     }
   })
 });
