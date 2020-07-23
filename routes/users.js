@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 
 const connection  = require('../config');
@@ -29,7 +30,7 @@ router.get('/foodLists', (req,res) => {
   })
 });
 
-// GET ONE user
+// GET ONE
 router.get('/:idUser', (req, res) => {
   const { idUser } = req.params;
 
@@ -44,7 +45,7 @@ router.get('/:idUser', (req, res) => {
   })
 });
 
-// CREATE ONE user
+// CREATE ONE user with crypt
 router.post('/', (req, res) => {
 
   const hash = bcrypt.hashSync(req.body.password, 10);
@@ -54,7 +55,7 @@ router.post('/', (req, res) => {
     password: hash
   };
 
-  connection.query('INSERT INTO user SET ?', [formData], (err, results) => {
+  connection.query('INSERT INTO user SET ?', [formData], (err, _) => {
     if(err) {
       res.status(500).send(err);
     } else {
@@ -62,6 +63,33 @@ router.post('/', (req, res) => {
     }
   })
 })
+
+// CREATE TOKEN when user connexion is successfull
+router.post('/auth', (req, res) => {
+  const formData = {
+    email: req.body.email,
+    password: req.body.password
+  };
+
+  connection.Query('SELECT email, password FROM user WHERE email = ?', [formData.email], (err, result) => {
+      if(err) {
+        res.status(500).send(err)
+      } else {
+        // compare inputs
+        const isSame = bcrypt.compareSync(formData.password, result[0].password);
+        if(!isSame) {
+          res.status(500).send(err)
+        } else {
+          // create token
+          jwt.sign({ result }, "secretkey", (err, token) => {
+            res.json({
+              token
+            });
+          });
+        }
+      }
+  });
+});
 
 
 // MODIFY DATAS for ONE user
