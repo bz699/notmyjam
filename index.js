@@ -13,7 +13,7 @@ app.use('/api', routes);
 
 // test connexion
 app.get('/', (request, response) =>{
-  response.send('connexion made');
+  response.send('connection made');
 });
 
 // port listening
