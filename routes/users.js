@@ -171,7 +171,8 @@ router.get("/:idUser/foodList", (req, res) => {
 	const { idUser } = req.params;
 
 	connection.query(
-		"SELECT * FROM user_food as uf JOIN user ON user.id = uf.user_id JOIN food ON food.id = uf.food_id WHERE user.id = ?",
+		"SELECT	uf.id as user_food_id, uf.allergy, uf.user_id, uf.food_id, f.item FROM user_food as uf JOIN food as f ON uf.food_id = f.id JOIN user as u ON uf.user_id = u.id WHERE u.id = ?",
+				
 		[idUser],
 		(err, results) => {
 			if (err) {
@@ -223,9 +224,10 @@ router.delete("/foodList/:idList", (req, res) => {
 	const { idList } = req.params;
 
 	connection.query(
-		"DELETE from user_food WHERE id= ?",
+		"DELETE from user_food WHERE id = ?",
 		[idList],
 		(err, results) => {
+			console.log(err, results)
 			if (err) {
 				res.status(500).send("Can't delete that food");
 			} else {
